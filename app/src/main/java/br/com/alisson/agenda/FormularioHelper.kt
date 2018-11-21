@@ -13,22 +13,35 @@ class FormularioHelper(formularioActivity: FormularioActivity) {
     private var site: EditText? = null
     private var rating: RatingBar? = null
 
+    private var aluno: Aluno? = null
+
     init {
         nome = formularioActivity.none
         endereco = formularioActivity.endereco
         telefone = formularioActivity.telefone
         site = formularioActivity.site
         rating = formularioActivity.rating
+        aluno = Aluno()
     }
 
-    fun pegaAluno(): Aluno{
-        return Aluno(
-            nome!!.text.toString(),
-            endereco!!.text.toString(),
-            telefone!!.text.toString(),
-            site!!.text.toString(),
-            rating!!.progress.toDouble()
-        )
+    fun pegaAluno(): Aluno {
+        aluno?.nome = nome!!.text.toString()
+        aluno?.endereco = endereco!!.text.toString()
+        aluno?.telefone = telefone!!.text.toString()
+        aluno?.site = site!!.text.toString()
+        aluno?.nota = rating!!.progress.toDouble()
+
+        return aluno!!
+    }
+
+    fun preencheFormulario(aluno: Aluno) {
+        nome?.setText(aluno.nome)
+        endereco?.setText(aluno.endereco)
+        telefone?.setText(aluno.telefone)
+        site?.setText(aluno.site)
+        rating?.progress = aluno.nota.toInt()
+
+        this.aluno = aluno
     }
 
 }

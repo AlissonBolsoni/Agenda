@@ -33,14 +33,17 @@ class AlunoDao(context: Context) :
     fun insere(aluno: Aluno) {
         val db = writableDatabase
 
+        db.insert("Alunos", null, pegaDadosDoAluno(aluno))
+    }
+
+    private fun pegaDadosDoAluno(aluno: Aluno): ContentValues {
         val cv = ContentValues()
         cv.put("nome", aluno.nome)
         cv.put("endereco", aluno.endereco)
         cv.put("telefone", aluno.telefone)
         cv.put("site", aluno.site)
         cv.put("nota", aluno.nota)
-
-        db.insert("Alunos", null, cv)
+        return cv
     }
 
     fun buscaAlunos(): ArrayList<Aluno> {
@@ -49,22 +52,34 @@ class AlunoDao(context: Context) :
         val cursor = db.rawQuery(sql, null)
         val alunos = ArrayList<Aluno>()
 
-        while (cursor.moveToNext()){
-            val id = cursor.getLong(cursor.getColumnIndexOrThrow("id"))
-            alunos.add(
-                Aluno(
-                    id,
-                    cursor.getString(cursor.getColumnIndexOrThrow("nome")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("endereco")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("telefone")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("site")),
-                    cursor.getDouble(cursor.getColumnIndexOrThrow("nota"))
-                )
-            )
+        while (cursor.moveToNext()) {
+            val aluno = Aluno()
+            aluno.id = cursor.getLong(cursor.getColumnIndexOrThrow("id"))
+            aluno.nome = cursor.getString(cursor.getColumnIndexOrThrow("nome"))
+            aluno.endereco = cursor.getString(cursor.getColumnIndexOrThrow("endereco"))
+            aluno.telefone = cursor.getString(cursor.getColumnIndexOrThrow("telefone"))
+            aluno.site = cursor.getString(cursor.getColumnIndexOrThrow("site"))
+            aluno.nota = cursor.getDouble(cursor.getColumnIndexOrThrow("nota"))
+
+            alunos.add(aluno)
         }
 
         cursor.close()
 
         return alunos
+    }
+
+    fun deleta(aluno: Aluno) {
+
+        val db = writableDatabase
+
+        db.delete("Alunos", "id = ?", arrayOf(aluno.id.toString()))
+
+    }
+
+    fun edita(aluno: Aluno) {
+        val db = writableDatabase
+
+        db.update("Alunos", pegaDadosDoAluno(aluno),"id = ?", arrayOf(aluno.id.toString()))
     }
 }

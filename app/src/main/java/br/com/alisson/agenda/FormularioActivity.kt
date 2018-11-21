@@ -11,12 +11,22 @@ import kotlinx.android.synthetic.main.activity_formulario.*
 
 class FormularioActivity : AppCompatActivity() {
 
+    companion object {
+        const val ALUNO = "ALUNO"
+    }
+
     private var helper: FormularioHelper? = null
+    private var aluno: Aluno? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_formulario)
         helper = FormularioHelper(this)
+
+        aluno = intent.getSerializableExtra(ALUNO) as Aluno
+        if (aluno != null){
+            helper?.preencheFormulario(aluno!!)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -32,7 +42,11 @@ class FormularioActivity : AppCompatActivity() {
             R.id.menu_formulario_ok -> {
                 val aluno = helper!!.pegaAluno()
                 val dao = AlunoDao(this)
-                dao.insere(aluno)
+                if(aluno.id == 0L){
+                    dao.insere(aluno)
+                }else{
+                    dao.edita(aluno)
+                }
                 dao.close()
 
                 Toast.makeText(this, "Formulario salvo", Toast.LENGTH_SHORT).show()

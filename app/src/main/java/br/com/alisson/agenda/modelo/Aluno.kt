@@ -1,26 +1,15 @@
 package br.com.alisson.agenda.modelo
 
-class Aluno (
-    val nome: String,
-    val endereco: String,
-    val telefone: String,
-    val site: String,
-    val nota: Double
-){
+import java.io.Serializable
+
+class Aluno: Serializable{
+
     var id: Long = 0
-        private set
-
-    constructor(
-        id: Long,
-        nome: String,
-        endereco: String,
-        telefone: String,
-        site: String,
-        nota: Double
-        ) : this(nome, endereco, telefone, site, nota){
-        this.id = id
-    }
-
+    var nome: String = ""
+    var endereco: String = ""
+    var telefone: String = ""
+    var site: String = ""
+    var nota: Double = 0.0
 
     override fun toString(): String {
         return "$id - $nome"
