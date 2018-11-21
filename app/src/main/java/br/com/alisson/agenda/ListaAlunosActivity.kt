@@ -1,8 +1,12 @@
 package br.com.alisson.agenda
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import android.view.ContextMenu
 import android.view.View
 import android.widget.AdapterView
@@ -13,6 +17,12 @@ import br.com.alisson.agenda.modelo.Aluno
 import kotlinx.android.synthetic.main.activity_lista_alunos.*
 
 class ListaAlunosActivity : AppCompatActivity() {
+
+    companion object {
+        const val PERMICAO_LIGAR = 123
+    }
+
+    var alunoClicado: Aluno? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,17 +58,66 @@ class ListaAlunosActivity : AppCompatActivity() {
     }
 
     override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
+        val info = menuInfo as AdapterView.AdapterContextMenuInfo
+        alunoClicado = lista_alunos.getItemAtPosition(info.position) as Aluno
+
+        val tel = menu?.add("Ligar")
+        tel?.setOnMenuItemClickListener {
+
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.CALL_PHONE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CALL_PHONE), PERMICAO_LIGAR)
+            } else {
+                fazerLigacao(alunoClicado!!)
+            }
+            false
+        }
+
+        val sms = menu?.add("Enviar SMS")
+        val intentSms = Intent(Intent.ACTION_VIEW)
+        intentSms.data = Uri.parse("sms:${alunoClicado!!.telefone}")
+        sms?.intent = intentSms
+
+        val mapa = menu?.add("Ver no Mapa")
+        val intentMapa = Intent(Intent.ACTION_VIEW)
+        intentMapa.data = Uri.parse("geo:0,0?q=${alunoClicado!!.endereco}")
+        mapa?.intent = intentMapa
+
+        var site = alunoClicado!!.site
+        if (!site.startsWith("http://") || !site.startsWith("https://"))
+            site = "http://$site"
+
+        val vistaSite = menu?.add("Visitar Site")
+        val intentSite = Intent(Intent.ACTION_VIEW)
+        intentSite.data = Uri.parse(site)
+        vistaSite?.intent = intentSite
+
         val del = menu?.add("Deletar")
         del?.setOnMenuItemClickListener {
-            val info = menuInfo as AdapterView.AdapterContextMenuInfo
-            val aluno = lista_alunos.getItemAtPosition(info.position) as Aluno
 
             val dao = AlunoDao(this)
-            dao.deleta(aluno)
+            dao.deleta(alunoClicado!!)
             dao.close()
 
             carregaLista()
             false
+        }
+    }
+
+    private fun fazerLigacao(aluno: Aluno) {
+        val intentTel = Intent(Intent.ACTION_CALL)
+        intentTel.data = Uri.parse("tel:${aluno.telefone}")
+        startActivity(intentTel)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == PERMICAO_LIGAR){
+            fazerLigacao(alunoClicado!!)
         }
     }
 }

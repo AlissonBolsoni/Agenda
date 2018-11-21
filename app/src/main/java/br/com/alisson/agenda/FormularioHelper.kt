@@ -1,12 +1,16 @@
 package br.com.alisson.agenda
 
+import android.graphics.Bitmap
+import android.graphics.Color
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.RatingBar
 import br.com.alisson.agenda.modelo.Aluno
 import kotlinx.android.synthetic.main.activity_formulario.*
 
 class FormularioHelper(formularioActivity: FormularioActivity) {
 
+    private var foto: ImageView? = null
     private var nome: EditText? = null
     private var endereco: EditText? = null
     private var telefone: EditText? = null
@@ -16,6 +20,7 @@ class FormularioHelper(formularioActivity: FormularioActivity) {
     private var aluno: Aluno? = null
 
     init {
+        foto = formularioActivity.formulario_foto
         nome = formularioActivity.none
         endereco = formularioActivity.endereco
         telefone = formularioActivity.telefone
@@ -25,6 +30,7 @@ class FormularioHelper(formularioActivity: FormularioActivity) {
     }
 
     fun pegaAluno(): Aluno {
+//        aluno?.foto = foto!!.na
         aluno?.nome = nome!!.text.toString()
         aluno?.endereco = endereco!!.text.toString()
         aluno?.telefone = telefone!!.text.toString()
@@ -42,6 +48,14 @@ class FormularioHelper(formularioActivity: FormularioActivity) {
         rating?.progress = aluno.nota.toInt()
 
         this.aluno = aluno
+    }
+
+    fun carregaFoto(bitmap: Bitmap, caminhoFoto: String){
+        val bitmapReduzido = Bitmap.createScaledBitmap(bitmap, 512, 512, true)
+        foto?.setImageBitmap(bitmapReduzido)
+        foto?.setBackgroundColor(Color.TRANSPARENT)
+        foto?.tag = caminhoFoto
+        foto?.scaleType = ImageView.ScaleType.FIT_XY
     }
 
 }
