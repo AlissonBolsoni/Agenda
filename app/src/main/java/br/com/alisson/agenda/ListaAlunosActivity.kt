@@ -8,10 +8,15 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.view.ContextMenu
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListAdapter
+import android.widget.Toast
+import br.com.alisson.agenda.adapter.AlunosAdapter
+import br.com.alisson.agenda.converter.AlunoConverter
 import br.com.alisson.agenda.dao.AlunoDao
 import br.com.alisson.agenda.modelo.Aluno
 import kotlinx.android.synthetic.main.activity_lista_alunos.*
@@ -20,6 +25,7 @@ class ListaAlunosActivity : AppCompatActivity() {
 
     companion object {
         const val PERMICAO_LIGAR = 123
+        const val PERMICAO_SMS = 124
     }
 
     var alunoClicado: Aluno? = null
@@ -33,7 +39,7 @@ class ListaAlunosActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        lista_alunos.setOnItemClickListener { lista, item, position, id ->
+        lista_alunos.setOnItemClickListener { _, _, position, _ ->
             val aluno = lista_alunos.getItemAtPosition(position) as Aluno
             val intent = Intent(this@ListaAlunosActivity, FormularioActivity::class.java)
             intent.putExtra(FormularioActivity.ALUNO, aluno)
@@ -46,6 +52,31 @@ class ListaAlunosActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         carregaLista()
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECEIVE_SMS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECEIVE_SMS), PERMICAO_SMS)
+        }
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_lista,menu)
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when(item?.itemId){
+            R.id.menu_enviar_notas ->{
+                EnviaAlunosTask(this).execute()
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     private fun carregaLista() {
@@ -53,8 +84,8 @@ class ListaAlunosActivity : AppCompatActivity() {
         val alunos = dao.buscaAlunos()
         dao.close()
 
-        val adapter = ArrayAdapter<Aluno>(this, android.R.layout.simple_list_item_1, alunos)
-        lista_alunos.adapter = adapter as ListAdapter?
+        val adapter = AlunosAdapter(this, alunos)
+        lista_alunos.adapter = adapter
     }
 
     override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
@@ -118,6 +149,8 @@ class ListaAlunosActivity : AppCompatActivity() {
 
         if (requestCode == PERMICAO_LIGAR){
             fazerLigacao(alunoClicado!!)
+        }else if (requestCode == PERMICAO_SMS){
+
         }
     }
 }

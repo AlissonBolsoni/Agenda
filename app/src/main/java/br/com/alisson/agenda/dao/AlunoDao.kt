@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import br.com.alisson.agenda.modelo.Aluno
 
 class AlunoDao(context: Context) :
-    SQLiteOpenHelper(context, "agenda", null, 1) {
+    SQLiteOpenHelper(context, "agenda", null, 2) {
 
     override fun onCreate(db: SQLiteDatabase?) {
 
@@ -17,7 +17,8 @@ class AlunoDao(context: Context) :
                 "endereco TEXT, " +
                 "telefone TEXT, " +
                 "site TEXT, " +
-                "nota REAL " +
+                "nota REAL, " +
+                "caminhoFoto TEXT" +
                 ");"
 
         db?.execSQL(sql)
@@ -25,9 +26,11 @@ class AlunoDao(context: Context) :
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        val sql = "DROP TABLE IF EXISTS Aluno"
-        db?.execSQL(sql)
-        onCreate(db)
+        var sql = ""
+        if(oldVersion <= 1){
+            sql = "Alter table Alunos add column caminhoFoto TEXT;"
+            db?.execSQL(sql)
+        }
     }
 
     fun insere(aluno: Aluno) {
@@ -43,6 +46,7 @@ class AlunoDao(context: Context) :
         cv.put("telefone", aluno.telefone)
         cv.put("site", aluno.site)
         cv.put("nota", aluno.nota)
+        cv.put("caminhoFoto", aluno.caminhoFoto)
         return cv
     }
 
@@ -60,6 +64,8 @@ class AlunoDao(context: Context) :
             aluno.telefone = cursor.getString(cursor.getColumnIndexOrThrow("telefone"))
             aluno.site = cursor.getString(cursor.getColumnIndexOrThrow("site"))
             aluno.nota = cursor.getDouble(cursor.getColumnIndexOrThrow("nota"))
+            aluno.caminhoFoto = cursor.getString(cursor.getColumnIndexOrThrow("caminhoFoto"))
+
 
             alunos.add(aluno)
         }
@@ -81,5 +87,14 @@ class AlunoDao(context: Context) :
         val db = writableDatabase
 
         db.update("Alunos", pegaDadosDoAluno(aluno),"id = ?", arrayOf(aluno.id.toString()))
+    }
+
+    fun ehAluno(telefone: String): Boolean {
+
+        val db = readableDatabase
+        val cursor =db.rawQuery("SELECT * FROM alunos WHERE telefone = ?", arrayOf(telefone))
+        val ehAluno = cursor.count > 0
+        cursor.close()
+        return ehAluno
     }
 }

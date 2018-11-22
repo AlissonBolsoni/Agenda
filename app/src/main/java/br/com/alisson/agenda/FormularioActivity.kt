@@ -62,8 +62,7 @@ class FormularioActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         if (requestCode == CAMERA_RESULT && resultCode == Activity.RESULT_OK) {
-            val bitmap = BitmapFactory.decodeFile(caminhoFoto)
-            helper?.carregaFoto(bitmap, caminhoFoto)
+            helper?.carregaFoto(caminhoFoto)
         }
     }
 

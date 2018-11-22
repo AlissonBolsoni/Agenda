@@ -1,6 +1,7 @@
 package br.com.alisson.agenda
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.widget.EditText
 import android.widget.ImageView
@@ -30,7 +31,7 @@ class FormularioHelper(formularioActivity: FormularioActivity) {
     }
 
     fun pegaAluno(): Aluno {
-//        aluno?.foto = foto!!.na
+        aluno?.caminhoFoto = (foto!!.tag as String?)
         aluno?.nome = nome!!.text.toString()
         aluno?.endereco = endereco!!.text.toString()
         aluno?.telefone = telefone!!.text.toString()
@@ -41,6 +42,7 @@ class FormularioHelper(formularioActivity: FormularioActivity) {
     }
 
     fun preencheFormulario(aluno: Aluno) {
+        ImageUtils.carregaFoto(foto!!,aluno.caminhoFoto)
         nome?.setText(aluno.nome)
         endereco?.setText(aluno.endereco)
         telefone?.setText(aluno.telefone)
@@ -50,12 +52,8 @@ class FormularioHelper(formularioActivity: FormularioActivity) {
         this.aluno = aluno
     }
 
-    fun carregaFoto(bitmap: Bitmap, caminhoFoto: String){
-        val bitmapReduzido = Bitmap.createScaledBitmap(bitmap, 512, 512, true)
-        foto?.setImageBitmap(bitmapReduzido)
-        foto?.setBackgroundColor(Color.TRANSPARENT)
-        foto?.tag = caminhoFoto
-        foto?.scaleType = ImageView.ScaleType.FIT_XY
+    fun carregaFoto(caminhoFoto: String){
+        ImageUtils.carregaFoto(foto!!,caminhoFoto)
     }
 
 }
