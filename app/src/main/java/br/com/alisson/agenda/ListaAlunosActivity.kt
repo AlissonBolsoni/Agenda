@@ -74,6 +74,16 @@ class ListaAlunosActivity : AppCompatActivity() {
             R.id.menu_enviar_notas ->{
                 EnviaAlunosTask(this).execute()
             }
+
+            R.id.menu_baixar_provas ->{
+                val intent = Intent(this, ProvasActivity::class.java)
+                startActivity(intent)
+            }
+
+            R.id.menu_mapa ->{
+                val intent = Intent(this, MapaActivity::class.java)
+                startActivity(intent)
+            }
         }
 
         return super.onOptionsItemSelected(item)

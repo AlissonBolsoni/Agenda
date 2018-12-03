@@ -10,7 +10,7 @@ import br.com.alisson.agenda.R
 import br.com.alisson.agenda.modelo.Aluno
 import kotlinx.android.synthetic.main.list_item.view.*
 
-class AlunosAdapter(private val context: Context, private val alunos: ArrayList<Aluno>): BaseAdapter() {
+class AlunosAdapter(private val context: Context, private val alunos: ArrayList<Aluno>) : BaseAdapter() {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
 
         val aluno = getItem(position)
@@ -23,6 +23,11 @@ class AlunosAdapter(private val context: Context, private val alunos: ArrayList<
         view!!.item_nome.text = aluno.nome
         view.item_telefone.text = aluno.telefone
         ImageUtils.carregaFoto(view.item_foto, aluno.caminhoFoto, 100, 100)
+
+
+        view.item_endereco?.text = aluno.endereco
+        view.item_site?.text = aluno.site
+
 
         return view
     }
