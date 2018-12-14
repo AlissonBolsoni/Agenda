@@ -8,10 +8,13 @@ import java.util.*
 
 object WebClient {
 
-    fun post(json: String): String?{
+    fun post(json: String): String? {
+        return realizaConexao("https://www.caelum.com.br/mobile", json)
+    }
 
+    private fun realizaConexao(endereco: String, json: String): String? {
         try {
-            val url = URL("https://www.caelum.com.br/mobile")
+            val url = URL(endereco)
             val connection = url.openConnection() as HttpURLConnection
             connection.setRequestProperty("Content-type", "application/json")
             connection.setRequestProperty("Accept", "application/json")
@@ -28,10 +31,13 @@ object WebClient {
 
             return resposta
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
         return null
     }
+
+
+
 
 }

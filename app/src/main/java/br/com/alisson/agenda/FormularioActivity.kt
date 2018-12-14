@@ -1,5 +1,6 @@
 package br.com.alisson.agenda
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
@@ -13,13 +14,10 @@ import br.com.alisson.agenda.dao.AlunoDao
 import br.com.alisson.agenda.modelo.Aluno
 import kotlinx.android.synthetic.main.activity_formulario.*
 import java.io.File
-import android.support.design.widget.CoordinatorLayout.Behavior.setTag
-import android.graphics.Bitmap.createScaledBitmap
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.app.Activity
-import android.graphics.Color
-import android.widget.ImageView
+import br.com.alisson.agenda.retrofit.RetrofitInicializador
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class FormularioActivity : AppCompatActivity() {
@@ -85,6 +83,17 @@ class FormularioActivity : AppCompatActivity() {
                     dao.edita(aluno)
                 }
                 dao.close()
+
+                val call = RetrofitInicializador.getAlunoService().insere(aluno)
+                call.enqueue(object: Callback<String> {
+                    override fun onFailure(call: Call<String>, t: Throwable) {
+
+                    }
+
+                    override fun onResponse(call: Call<String>, response: Response<String>) {
+                    }
+
+                })
 
                 Toast.makeText(this, "Aluno { ${aluno.nome} } salvo", Toast.LENGTH_SHORT).show()
 
