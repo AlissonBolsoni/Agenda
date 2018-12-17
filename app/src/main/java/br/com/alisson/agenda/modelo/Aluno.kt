@@ -1,9 +1,11 @@
 package br.com.alisson.agenda.modelo
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 
 class Aluno: Serializable{
 
+    @JsonProperty("idCliente")
     var id: Long = 0
     var nome: String = ""
     var endereco: String = ""

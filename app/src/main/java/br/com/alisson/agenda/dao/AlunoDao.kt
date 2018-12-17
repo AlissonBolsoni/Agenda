@@ -36,7 +36,7 @@ class AlunoDao(context: Context) :
     fun insere(aluno: Aluno) {
         val db = writableDatabase
 
-        db.insert("Alunos", null, pegaDadosDoAluno(aluno))
+        aluno.id =  db.insert("Alunos", null, pegaDadosDoAluno(aluno))
     }
 
     private fun pegaDadosDoAluno(aluno: Aluno): ContentValues {

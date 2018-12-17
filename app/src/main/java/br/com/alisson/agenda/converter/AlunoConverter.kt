@@ -1,7 +1,6 @@
 package br.com.alisson.agenda.converter
 
 import br.com.alisson.agenda.modelo.Aluno
-import com.google.gson.Gson
 import org.json.JSONStringer
 import java.lang.Exception
 
