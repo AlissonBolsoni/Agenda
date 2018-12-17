@@ -12,14 +12,15 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.ListAdapter
-import android.widget.Toast
 import br.com.alisson.agenda.adapter.AlunosAdapter
-import br.com.alisson.agenda.converter.AlunoConverter
 import br.com.alisson.agenda.dao.AlunoDao
+import br.com.alisson.agenda.dto.AlunoSync
 import br.com.alisson.agenda.modelo.Aluno
+import br.com.alisson.agenda.retrofit.RetrofitInicializador
 import kotlinx.android.synthetic.main.activity_lista_alunos.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ListaAlunosActivity : AppCompatActivity() {
 
@@ -51,6 +52,26 @@ class ListaAlunosActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        val call = RetrofitInicializador.getAlunoService().lista()
+
+        call.enqueue(object : Callback<AlunoSync>{
+            override fun onFailure(call: Call<AlunoSync>, t: Throwable) {
+
+            }
+
+            override fun onResponse(call: Call<AlunoSync>, response: Response<AlunoSync>) {
+                val alunosSync = response.body()
+                val dao = AlunoDao(this@ListaAlunosActivity)
+                if (alunosSync != null){
+                    dao.sincroniza(alunosSync.alunos)
+                    dao.close()
+
+                    carregaLista()
+                }
+            }
+        })
+
         carregaLista()
 
         if (ActivityCompat.checkSelfPermission(

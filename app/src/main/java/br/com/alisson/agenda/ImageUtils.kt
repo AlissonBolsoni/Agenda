@@ -10,11 +10,13 @@ object ImageUtils {
     fun carregaFoto(foto: ImageView, caminhoFoto: String?, width: Int = 512, height: Int = 512){
         if(!caminhoFoto.isNullOrBlank()){
             val bitmap = BitmapFactory.decodeFile(caminhoFoto)
-            val bitmapReduzido = Bitmap.createScaledBitmap(bitmap, width, height, true)
-            foto.setImageBitmap(bitmapReduzido)
-            foto.setBackgroundColor(Color.TRANSPARENT)
-            foto.tag = caminhoFoto
-            foto.scaleType = ImageView.ScaleType.FIT_XY
+            if (bitmap != null){
+                val bitmapReduzido = Bitmap.createScaledBitmap(bitmap, width, height, true)
+                foto.setImageBitmap(bitmapReduzido)
+                foto.setBackgroundColor(Color.TRANSPARENT)
+                foto.tag = caminhoFoto
+                foto.scaleType = ImageView.ScaleType.FIT_XY
+            }
         }
     }
 

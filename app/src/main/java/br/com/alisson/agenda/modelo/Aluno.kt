@@ -1,12 +1,13 @@
 package br.com.alisson.agenda.modelo
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class Aluno: Serializable{
 
-    @JsonProperty("idCliente")
-    var id: Long = 0
+    var id: String = ""
     var nome: String = ""
     var endereco: String = ""
     var telefone: String = ""

@@ -34,7 +34,7 @@ class AlunosAdapter(private val context: Context, private val alunos: ArrayList<
 
     override fun getItem(position: Int) = alunos[position]
 
-    override fun getItemId(position: Int) = alunos[position].id
+    override fun getItemId(position: Int) = 0L
 
     override fun getCount() = alunos.size
 }

@@ -19,7 +19,7 @@ object RetrofitInicializador {
         okHttpClient.addInterceptor(intecptor)
 
         retrofit = Retrofit.Builder()
-                .baseUrl("http://192.168.1.132:8080/api/")
+                .baseUrl("http://192.168.1.141:8080/api/")
                 .addConverterFactory(JacksonConverterFactory.create())
                 .client(okHttpClient.build())
                 .build()
