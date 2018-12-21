@@ -14,6 +14,7 @@ class Aluno: Serializable{
     var nota: Double = 0.0
     var caminhoFoto: String? = null
     var desativado: Int = 0
+    var sincronizado: Int = 0
 
     override fun toString(): String {
         return "$id - $nome"

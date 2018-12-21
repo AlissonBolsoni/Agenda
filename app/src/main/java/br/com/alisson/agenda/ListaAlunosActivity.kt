@@ -35,10 +35,13 @@ class ListaAlunosActivity : AppCompatActivity() {
     }
 
     var alunoClicado: Aluno? = null
+    var alunoSync: AlunoSincronizador? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lista_alunos)
+
+        alunoSync = AlunoSincronizador(this)
 
         swipe_lista_aluno.setOnRefreshListener {
             buscaAlunos()
@@ -67,7 +70,14 @@ class ListaAlunosActivity : AppCompatActivity() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun atualizaListaAlunoEvent(event: AtualizaListaAlunoEvent){
+        if (swipe_lista_aluno.isRefreshing)
+            swipe_lista_aluno.isRefreshing = false
+
         carregaLista()
+    }
+
+    private fun buscaAlunos(){
+        alunoSync?.buscaAlunos()
     }
 
     override fun onResume() {
@@ -82,29 +92,6 @@ class ListaAlunosActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECEIVE_SMS), PERMICAO_SMS)
         }
 
-    }
-
-    private fun buscaAlunos() {
-        val call = RetrofitInicializador.getAlunoService().lista()
-
-        call.enqueue(object : Callback<AlunoSync> {
-            override fun onFailure(call: Call<AlunoSync>, t: Throwable) {
-                swipe_lista_aluno.isRefreshing = false
-            }
-
-            override fun onResponse(call: Call<AlunoSync>, response: Response<AlunoSync>) {
-                val alunosSync = response.body()
-                val dao = AlunoDao(this@ListaAlunosActivity)
-                if (alunosSync != null) {
-                    dao.sincroniza(alunosSync.alunos)
-                    dao.close()
-
-                    carregaLista()
-                }
-
-                swipe_lista_aluno.isRefreshing = false
-            }
-        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

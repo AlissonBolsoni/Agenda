@@ -10,7 +10,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class AlunoDao(context: Context) :
-        SQLiteOpenHelper(context, "agenda", null, 4) {
+        SQLiteOpenHelper(context, "agenda", null, 5) {
 
     override fun onCreate(db: SQLiteDatabase?) {
 
@@ -21,7 +21,8 @@ class AlunoDao(context: Context) :
                 "telefone TEXT, " +
                 "site TEXT, " +
                 "nota REAL, " +
-                "caminhoFoto TEXT" +
+                "caminhoFoto TEXT, " +
+                "sincronizado INT DEFAULT 0" +
                 ");"
 
         db?.execSQL(sql)
@@ -70,6 +71,10 @@ class AlunoDao(context: Context) :
                 db?.execSQL(update, arrayOf(geraUUID(), aluno.id))
             }
         }
+        if (oldVersion <= 4){
+            sql = "ALTER TABLE Aunos ADD COLUMN sincronizado INT DEFAULT 0"
+            db?.execSQL(sql)
+        }
     }
 
     private fun geraUUID(): String {
@@ -88,6 +93,7 @@ class AlunoDao(context: Context) :
                 aluno.nota = cursor.getDouble(cursor.getColumnIndexOrThrow("nota"))
                 aluno.site = cursor.getString(cursor.getColumnIndexOrThrow("site"))
                 aluno.telefone = cursor.getString(cursor.getColumnIndexOrThrow("telefone"))
+                aluno.sincronizado = cursor.getInt(cursor.getColumnIndexOrThrow("sincronizado"))
 
                 alunos.add(aluno)
             }
@@ -142,6 +148,7 @@ class AlunoDao(context: Context) :
         cv.put("site", aluno.site)
         cv.put("nota", aluno.nota)
         cv.put("caminhoFoto", aluno.caminhoFoto)
+        cv.put("sincronizado", aluno.sincronizado)
         return cv
     }
 

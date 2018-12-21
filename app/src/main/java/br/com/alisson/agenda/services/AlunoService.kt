@@ -16,4 +16,7 @@ interface AlunoService {
     @DELETE("aluno/{id}")
     fun deleta(@Path("id") id: String): Call<Void>
 
+    @GET("aluno/diff")
+    fun novos(@Header("datahora") versao: String): Call<AlunoSync>
+
 }
