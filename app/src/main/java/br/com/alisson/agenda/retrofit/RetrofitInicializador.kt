@@ -1,6 +1,7 @@
 package br.com.alisson.agenda.retrofit
 
 import br.com.alisson.agenda.services.AlunoService
+import br.com.alisson.agenda.services.DispositivoService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -19,17 +20,15 @@ object RetrofitInicializador {
         okHttpClient.addInterceptor(intecptor)
 
         retrofit = Retrofit.Builder()
-                .baseUrl("http://192.168.1.141:8080/api/")
+                .baseUrl("http://192.168.1.131:8080/api/")
                 .addConverterFactory(JacksonConverterFactory.create())
                 .client(okHttpClient.build())
                 .build()
     }
 
-    fun getAlunoService(): AlunoService {
+    fun getAlunoService() = retrofit!!.create(AlunoService::class.java)
 
-        return retrofit!!.create(AlunoService::class.java)
-
-    }
+    fun getDispositivoService() = retrofit!!.create(DispositivoService::class.java)
 
 
 }

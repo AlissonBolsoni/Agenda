@@ -1,7 +1,6 @@
 package br.com.alisson.agenda.modelo
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -14,9 +13,14 @@ class Aluno: Serializable{
     var site: String = ""
     var nota: Double = 0.0
     var caminhoFoto: String? = null
+    var desativado: Int = 0
 
     override fun toString(): String {
         return "$id - $nome"
+    }
+
+    fun estaDesativado(): Boolean {
+        return desativado == 1
     }
 
 

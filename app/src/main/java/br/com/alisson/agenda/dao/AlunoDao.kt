@@ -108,8 +108,12 @@ class AlunoDao(context: Context) :
         val db = writableDatabase
         for (aluno in alunos){
             if (existe(aluno)){
-                edita(aluno)
-            }else{
+                if(aluno.estaDesativado()){
+                    deleta(aluno)
+                }else{
+                    edita(aluno)
+                }
+            }else if(!aluno.estaDesativado()){
                 insere(aluno)
             }
         }

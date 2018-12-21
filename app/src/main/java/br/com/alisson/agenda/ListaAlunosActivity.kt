@@ -12,12 +12,17 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
+import android.widget.Toast
 import br.com.alisson.agenda.adapter.AlunosAdapter
 import br.com.alisson.agenda.dao.AlunoDao
 import br.com.alisson.agenda.dto.AlunoSync
+import br.com.alisson.agenda.event.AtualizaListaAlunoEvent
 import br.com.alisson.agenda.modelo.Aluno
 import br.com.alisson.agenda.retrofit.RetrofitInicializador
 import kotlinx.android.synthetic.main.activity_lista_alunos.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -35,6 +40,10 @@ class ListaAlunosActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lista_alunos)
 
+        swipe_lista_aluno.setOnRefreshListener {
+            buscaAlunos()
+        }
+
         novo_aluno.setOnClickListener {
             val intent = Intent(this, FormularioActivity::class.java)
             startActivity(intent)
@@ -48,30 +57,21 @@ class ListaAlunosActivity : AppCompatActivity() {
         }
 
         registerForContextMenu(lista_alunos)
+
+        buscaAlunos()
+
+        val eventBus = EventBus.getDefault()
+        eventBus.register(this)
+
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun atualizaListaAlunoEvent(event: AtualizaListaAlunoEvent){
+        carregaLista()
     }
 
     override fun onResume() {
         super.onResume()
-
-        val call = RetrofitInicializador.getAlunoService().lista()
-
-        call.enqueue(object : Callback<AlunoSync>{
-            override fun onFailure(call: Call<AlunoSync>, t: Throwable) {
-
-            }
-
-            override fun onResponse(call: Call<AlunoSync>, response: Response<AlunoSync>) {
-                val alunosSync = response.body()
-                val dao = AlunoDao(this@ListaAlunosActivity)
-                if (alunosSync != null){
-                    dao.sincroniza(alunosSync.alunos)
-                    dao.close()
-
-                    carregaLista()
-                }
-            }
-        })
-
         carregaLista()
 
         if (ActivityCompat.checkSelfPermission(
@@ -82,6 +82,29 @@ class ListaAlunosActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECEIVE_SMS), PERMICAO_SMS)
         }
 
+    }
+
+    private fun buscaAlunos() {
+        val call = RetrofitInicializador.getAlunoService().lista()
+
+        call.enqueue(object : Callback<AlunoSync> {
+            override fun onFailure(call: Call<AlunoSync>, t: Throwable) {
+                swipe_lista_aluno.isRefreshing = false
+            }
+
+            override fun onResponse(call: Call<AlunoSync>, response: Response<AlunoSync>) {
+                val alunosSync = response.body()
+                val dao = AlunoDao(this@ListaAlunosActivity)
+                if (alunosSync != null) {
+                    dao.sincroniza(alunosSync.alunos)
+                    dao.close()
+
+                    carregaLista()
+                }
+
+                swipe_lista_aluno.isRefreshing = false
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -160,11 +183,22 @@ class ListaAlunosActivity : AppCompatActivity() {
         val del = menu?.add("Deletar")
         del?.setOnMenuItemClickListener {
 
-            val dao = AlunoDao(this)
-            dao.deleta(alunoClicado!!)
-            dao.close()
+            val call = RetrofitInicializador.getAlunoService().deleta(alunoClicado!!.id)
 
-            carregaLista()
+            call.enqueue(object: Callback<Void>{
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    Toast.makeText(this@ListaAlunosActivity, "Não foi possível remover o aluno!", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    val dao = AlunoDao(this@ListaAlunosActivity)
+                    dao.deleta(alunoClicado!!)
+                    dao.close()
+
+                    carregaLista()
+                }
+            })
+
             false
         }
     }
