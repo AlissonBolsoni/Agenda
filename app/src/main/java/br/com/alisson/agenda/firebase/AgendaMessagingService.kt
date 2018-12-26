@@ -1,6 +1,7 @@
 package br.com.alisson.agenda.firebase
 
 import android.util.Log
+import br.com.alisson.agenda.AlunoSincronizador
 import br.com.alisson.agenda.dao.AlunoDao
 import br.com.alisson.agenda.dto.AlunoSync
 import br.com.alisson.agenda.event.AtualizaListaAlunoEvent
@@ -29,9 +30,9 @@ class AgendaMessagingService: FirebaseMessagingService() {
                 val objectMaper = ObjectMapper()
                 try {
                     val alunoSync = objectMaper.readValue<AlunoSync>(json, AlunoSync::class.java)
-                    val dao = AlunoDao(this)
-                    dao.sincroniza(alunoSync.alunos)
-                    dao.close()
+
+                    AlunoSincronizador(this).sincroniza(alunoSync)
+
                     val eventBus = EventBus.getDefault()
                     eventBus.post(AtualizaListaAlunoEvent())
                 }catch (e: IOException){

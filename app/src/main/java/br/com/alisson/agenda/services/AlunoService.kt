@@ -19,4 +19,6 @@ interface AlunoService {
     @GET("aluno/diff")
     fun novos(@Header("datahora") versao: String): Call<AlunoSync>
 
+    @PUT("aluno/lista")
+    fun atualiza(@Body list: ArrayList<Aluno>): Call<AlunoSync>
 }

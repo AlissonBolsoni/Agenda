@@ -170,25 +170,18 @@ class ListaAlunosActivity : AppCompatActivity() {
         val del = menu?.add("Deletar")
         del?.setOnMenuItemClickListener {
 
-            val call = RetrofitInicializador.getAlunoService().deleta(alunoClicado!!.id)
+            val dao = AlunoDao(this@ListaAlunosActivity)
+            dao.deleta(alunoClicado!!)
+            dao.close()
 
-            call.enqueue(object: Callback<Void>{
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    Toast.makeText(this@ListaAlunosActivity, "Não foi possível remover o aluno!", Toast.LENGTH_SHORT).show()
-                }
+            carregaLista()
 
-                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    val dao = AlunoDao(this@ListaAlunosActivity)
-                    dao.deleta(alunoClicado!!)
-                    dao.close()
-
-                    carregaLista()
-                }
-            })
+            alunoSync!!.deleta(alunoClicado!!)
 
             false
         }
     }
+
 
     private fun fazerLigacao(aluno: Aluno) {
         val intentTel = Intent(Intent.ACTION_CALL)

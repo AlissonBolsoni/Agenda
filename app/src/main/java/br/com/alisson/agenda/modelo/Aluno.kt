@@ -24,5 +24,18 @@ class Aluno: Serializable{
         return desativado == 1
     }
 
+    fun desativa() {
+        this.desativado = 1
+        desincroniza()
+    }
+
+    fun sincroniza() {
+        this.sincronizado = 1
+    }
+
+    fun desincroniza() {
+        this.sincronizado = 0
+    }
+
 
 }

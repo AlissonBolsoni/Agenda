@@ -10,7 +10,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class AlunoDao(context: Context) :
-        SQLiteOpenHelper(context, "agenda", null, 5) {
+        SQLiteOpenHelper(context, "agenda", null, 6) {
 
     override fun onCreate(db: SQLiteDatabase?) {
 
@@ -22,7 +22,8 @@ class AlunoDao(context: Context) :
                 "site TEXT, " +
                 "nota REAL, " +
                 "caminhoFoto TEXT, " +
-                "sincronizado INT DEFAULT 0" +
+                "sincronizado INT DEFAULT 0, " +
+                "desativado INT DEFAULT 0" +
                 ");"
 
         db?.execSQL(sql)
@@ -75,6 +76,10 @@ class AlunoDao(context: Context) :
             sql = "ALTER TABLE Aunos ADD COLUMN sincronizado INT DEFAULT 0"
             db?.execSQL(sql)
         }
+        if (oldVersion <= 5){
+            sql = "ALTER TABLE Aunos ADD COLUMN desativado INT DEFAULT 0"
+            db?.execSQL(sql)
+        }
     }
 
     private fun geraUUID(): String {
@@ -94,6 +99,7 @@ class AlunoDao(context: Context) :
                 aluno.site = cursor.getString(cursor.getColumnIndexOrThrow("site"))
                 aluno.telefone = cursor.getString(cursor.getColumnIndexOrThrow("telefone"))
                 aluno.sincronizado = cursor.getInt(cursor.getColumnIndexOrThrow("sincronizado"))
+                aluno.desativado = cursor.getInt(cursor.getColumnIndexOrThrow("desativado"))
 
                 alunos.add(aluno)
             }
@@ -113,6 +119,7 @@ class AlunoDao(context: Context) :
     fun sincroniza(alunos: List<Aluno>) {
         val db = writableDatabase
         for (aluno in alunos){
+            aluno.sincroniza()
             if (existe(aluno)){
                 if(aluno.estaDesativado()){
                     deleta(aluno)
@@ -149,11 +156,12 @@ class AlunoDao(context: Context) :
         cv.put("nota", aluno.nota)
         cv.put("caminhoFoto", aluno.caminhoFoto)
         cv.put("sincronizado", aluno.sincronizado)
+        cv.put("desativado", aluno.desativado)
         return cv
     }
 
     fun buscaAlunos(): ArrayList<Aluno> {
-        val sql = "SELECT * FROM Alunos"
+        val sql = "SELECT * FROM Alunos WHERE desativado = 0"
         val db = readableDatabase
         val cursor = db.rawQuery(sql, null)
 
@@ -163,8 +171,13 @@ class AlunoDao(context: Context) :
     fun deleta(aluno: Aluno) {
 
         val db = writableDatabase
+        if (aluno.estaDesativado())
+            db.delete("Alunos", "id = ?", arrayOf(aluno.id.toString()))
+        else{
+            aluno.desativa()
+            edita(aluno)
+        }
 
-        db.delete("Alunos", "id = ?", arrayOf(aluno.id.toString()))
 
     }
 
@@ -181,5 +194,11 @@ class AlunoDao(context: Context) :
         val ehAluno = cursor.count > 0
         cursor.close()
         return ehAluno
+    }
+
+    fun listaNaoSincronizado(): ArrayList<Aluno>{
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM alunos WHERE sincronizado = ?", arrayOf("0"))
+        return populaAlunos(cursor)
     }
 }

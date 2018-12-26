@@ -76,6 +76,7 @@ class FormularioActivity : AppCompatActivity() {
         when (item!!.itemId) {
             R.id.menu_formulario_ok -> {
                 val aluno = helper!!.pegaAluno()
+                aluno.desincroniza()
                 val dao = AlunoDao(this)
                 if (aluno.id == "") {
                     dao.insere(aluno)
