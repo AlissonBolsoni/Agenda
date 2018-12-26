@@ -73,11 +73,11 @@ class AlunoDao(context: Context) :
             }
         }
         if (oldVersion <= 4){
-            sql = "ALTER TABLE Aunos ADD COLUMN sincronizado INT DEFAULT 0"
+            sql = "ALTER TABLE Alunos ADD COLUMN sincronizado INT DEFAULT 0"
             db?.execSQL(sql)
         }
         if (oldVersion <= 5){
-            sql = "ALTER TABLE Aunos ADD COLUMN desativado INT DEFAULT 0"
+            sql = "ALTER TABLE Alunos ADD COLUMN desativado INT DEFAULT 0"
             db?.execSQL(sql)
         }
     }
